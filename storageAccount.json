@@ -1,0 +1,53 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "stgName": {
+            "type": "string"
+            },
+        "environment": {
+            "type": "string",
+            "allowedValues": [
+                "test",
+                "prod"
+            ],
+            "defaultValue": "test"
+
+        }
+    },
+    "functions": [],
+    "variables": {
+        "StoreLevel": {
+            "test": {
+                "storeSKU": "Standard_LRS",
+                "StoreTier": "Standard"
+            },
+            "prod": {
+                "storeSKU": "Premium_LRS",
+                "StoreTier": "Premium"
+            }
+        },
+            "storeSKU": "[variables('StoreLevel')[parameters('environment')].storeSKU]",
+            "StoreTier": "[variables('StoreLevel')[parameters('environment')].StoreTier]"
+    },
+    "resources": [
+        {
+        "type": "microsoft.storage/storageaccounts",
+        "apiVersion": "2019-06-01",
+        "name": "[parameters('stgName')]",
+        "location": "[resourceGroup().location]",
+        "sku": {
+            "name": "[variables('storeSKU')]",
+            "tier": "[variables('StoreTier')]"
+        },
+        "kind": "StorageV2"
+
+        }
+    ],
+    "outputs": {
+        "storageEndpoint": {
+            "type": "object",
+            "value": "[reference(parameters('stgName')).primaryEndpoints]"
+        }
+    }
+}

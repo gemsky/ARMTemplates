@@ -1,0 +1,36 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "stgName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the store"
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "name": "linkedTemplates",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/gemsky/ARMTemplates/main/deployStore.json",
+                    "contentVersion": "1.0.0.0"
+                },
+            "parameters": {
+                "storeName": {
+                    "value": "[parameters('stgName')]"
+                }
+            }
+            }
+        }
+    ],
+    "outputs": {
+
+    }
+
+}

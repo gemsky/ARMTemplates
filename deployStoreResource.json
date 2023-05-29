@@ -1,0 +1,83 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "stgName": {
+            "type": "string"
+            },
+        "environment": {
+            "type": "string",
+            "allowedValues": [
+                "test",
+                "prod"
+            ],
+            "defaultValue": "test"
+
+            },
+        "serverfarms_ARMappPlan_name": {
+            "defaultValue": "ARMappPlan",
+            "type": "String"
+        }
+    },
+    "functions": [],
+    "variables": {
+        "StoreLevel": {
+            "test": {
+                "storeSKU": "Standard_LRS",
+                "StoreTier": "Standard"
+            },
+            "prod": {
+                "storeSKU": "Premium_LRS",
+                "StoreTier": "Premium"
+            }
+        },
+            "storeSKU": "[variables('StoreLevel')[parameters('environment')].storeSKU]",
+            "StoreTier": "[variables('StoreLevel')[parameters('environment')].StoreTier]"
+    },
+    "resources": [
+        {
+        "type": "microsoft.storage/storageaccounts",
+        "apiVersion": "2019-06-01",
+        "name": "[parameters('stgName')]",
+        "location": "[resourceGroup().location]",
+        "sku": {
+            "name": "[variables('storeSKU')]",
+            "tier": "[variables('StoreTier')]"
+        },
+        "kind": "StorageV2"
+
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2022-09-01",
+            "name": "[parameters('serverfarms_ARMappPlan_name')]",
+            "location": "Australia East",
+            "sku": {
+                "name": "F1",
+                "tier": "Free",
+                "size": "F1",
+                "family": "F",
+                "capacity": 1
+            },
+            "kind": "linux",
+            "properties": {
+                "perSiteScaling": false,
+                "elasticScaleEnabled": false,
+                "maximumElasticWorkerCount": 1,
+                "isSpot": false,
+                "reserved": true,
+                "isXenon": false,
+                "hyperV": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0,
+                "zoneRedundant": false
+            }
+        }
+    ],
+    "outputs": {
+        "storageEndpoint": {
+            "type": "object",
+            "value": "[reference(parameters('stgName')).primaryEndpoints]"
+        }
+    }
+}
